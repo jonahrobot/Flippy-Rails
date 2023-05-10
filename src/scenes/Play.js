@@ -29,19 +29,18 @@ class Play extends Phaser.Scene{
         this.distance = 0;
         this.railSpeed = 2;
 
-        this.cursorX = -64;
+        this.cursorX = 640 + 64;
         this.cursorY = 240;
 
         // Create Rail group
         this.rails = this.add.group(config);
 
-        this.rails.add(new Rail(this,30,30,'spr_rail',0,this.rails,0));
-        this.rails.add(new Rail(this,10,30,'spr_rail',0,this.rails,0));
-
         this.keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-    }
 
+        this.player = new Player(this, 64, this.cursorY, 'spr_player');
+        this.player.setDepth(1);
+    }
     update(){
 
         if (Phaser.Input.Keyboard.JustDown(this.keyLEFT)) {
@@ -56,28 +55,35 @@ class Play extends Phaser.Scene{
             this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
             this.distance = 64;
         }else{
-            this.rails.incX(this.railSpeed);
+            this.rails.incX(-1 * this.railSpeed);
             this.distance -= this.railSpeed;
         }
         
         console.log(this.rails.countActive());
+        
+        if(Phaser.Geom.Intersects.RectangleToRectangle(this.player, this.rails) == true){
+            console.log("HIT");
+        }
+        
     }
 
     moveCursorUp(times){
-        this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
+        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,0));
         while(times > 0){
             this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_rail',0,this.rails,0));
             times -= 1;
             this.cursorY -= 64;
         }
+        this.distance = 64;
     }
 
     moveCursorDown(times){
-        this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
+        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,1));
         while(times > 0){
             this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_rail',0,this.rails,0));
             times -= 1;
             this.cursorY += 64;
         }
+        this.distance = 64;
     }
 }
