@@ -99,21 +99,21 @@ class Play extends Phaser.Scene{
 
         // Check if going up or down will go out of bounds
         if(this.cursorY + 128 >= 480){
-            this.moveCursorUp(2);
+            this.moveCursor(0,2);
             bounds = true;
         }
 
         if(this.cursorY - 128 <= 0){
-            this.moveCursorDown(2);
+            this.moveCursor(1,2);
             bounds = true;
         }
 
         // Randomly go up or down
         if(bounds == false){
             if(randomNum >= 5){
-                this.moveCursorDown(2);
+                this.moveCursor(1,2);
             }else{
-                this.moveCursorUp(2);
+                this.moveCursor(0,2);
             }
         }
     
@@ -169,90 +169,61 @@ class Play extends Phaser.Scene{
         }
     }
 
-    
-
-    // Move tracks up by x times
-    moveCursorUp(times){
+    // Direction: 0 for up, 1 for down
+    // Times: how far to move in said direction
+    moveCursor(direction, times){
 
         // Add flip rail
-        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,0));
+        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,direction));
         this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails));
- 
+
+        // Save cursor position
         let oldCursorY = this.cursorY;
         let oldCursorX = this.cursorX;
 
+        let constant = (direction ? 1 : -1);
+
         // Add rails up to next track
         while(times > 1){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_rail_up',0,this.rails,0));
+            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_rail_up',0,this.rails,0));
             times -= 1;
-            this.cursorY -= 64;
+            this.cursorY += (64*constant);
         }
 
         // Add link at top of true path
-        this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
-        this.cursorY -= 64;
-
-        // Add fake path
-        if(Phaser.Math.Between(0, 9) > 4){
-            oldCursorY += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail_up',0,this.rails,0));
-            oldCursorY += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
+        if(constant == -1){
+            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
         }else{
-            oldCursorY += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
+            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_flip_rail',0,this.rails,0).setFlipX(true));
         }
+        this.cursorY += (64*constant);
 
-        let amountFake = Phaser.Math.Between(0, 3)
-        while(amountFake > 0){
-            oldCursorX += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
-            amountFake -= 1;
-        }
+        /// Add fake path ----
 
-        // Restart creation
-        this.distanceTillNextTrack = 64;
-    }
-
-    // Move tracks down by x times
-    moveCursorDown(times){
-
-        // Add flip rail
-        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,1));
-        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails));
-
-        let oldCursorY = this.cursorY;
-        let oldCursorX = this.cursorX;
-
-        // Add rails up to next track
-        while(times > 1){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_rail_up',0,this.rails,0));
-            times -= 1;
-            this.cursorY += 64;
-        }
-
-        this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_flip_rail',0,this.rails,0).setFlipX(true));
-        this.cursorY += 64;
-
-        // Add fake rails
-        if(Phaser.Math.Between(0, 9) > 4){
-            oldCursorY -= 64;
+        // Possibly go up one more
+        if(Phaser.Math.Between(0, 9) > 4 && (oldCursorY + 128 < 480) && (oldCursorY - 128 > 0)){
+            oldCursorY += (-64*constant);
             this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail_up',0,this.rails,0));
-            oldCursorY -= 64;
+        }
+
+        oldCursorY += (-64*constant);
+        
+        if(constant == 1){
             this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
         }else{
-            oldCursorY -= 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
-        }
-
-        let amountFake = Phaser.Math.Between(0, 3)
-        while(amountFake > 0){
-            oldCursorX += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
-            amountFake -= 1;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
         }
         
+
+        let amountFake = Phaser.Math.Between(0, 3)
+        while(amountFake > 0){
+            oldCursorX += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+            amountFake -= 1;
+        }
+
         // Restart creation
-        this.distanceTillNextTrack = 64;
+         this.distanceTillNextTrack = 64;
+
     }
 }
