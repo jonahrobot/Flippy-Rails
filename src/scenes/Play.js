@@ -12,6 +12,7 @@ class Play extends Phaser.Scene{
         this.railImage = this.load.image('spr_rail','./assets/rail.png');
         this.railUpImage = this.load.image('spr_rail_up','./assets/rail_up.png');
         this.load.image('spr_flip_rail','./assets/flip_rail.png');
+        this.load.image('spr_flip_ID','./assets/flip_indicator.png')
         
     }
 
@@ -50,7 +51,7 @@ class Play extends Phaser.Scene{
 
         // Create Player
         this.player = new Player(this, 64, this.cursorY, 'spr_player');
-        this.player.setDepth(1);
+        this.player.setDepth(2);
 
         // Start Track Flip Switch Generation
         this.time.delayedCall(2500, () => { 
@@ -168,11 +169,14 @@ class Play extends Phaser.Scene{
         }
     }
 
+    
+
     // Move tracks up by x times
     moveCursorUp(times){
 
         // Add flip rail
         this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,0));
+        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails));
  
         let oldCursorY = this.cursorY;
         let oldCursorX = this.cursorX;
@@ -215,6 +219,7 @@ class Play extends Phaser.Scene{
 
         // Add flip rail
         this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,1));
+        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails));
 
         let oldCursorY = this.cursorY;
         let oldCursorX = this.cursorX;
