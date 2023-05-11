@@ -15,10 +15,6 @@ class Play extends Phaser.Scene{
 
     create(){
 
-        // Create Player
-        this.player = new Player(this, 64, this.cursorY, 'spr_player');
-        this.player.setDepth(1);
-
         // Set up Rail Group
         let config = {
             classType: Phaser.GameObjects.Sprite,
@@ -34,6 +30,8 @@ class Play extends Phaser.Scene{
         
         // State Trackers
         this.currentFlipState = 0;      // 0 = DOWN, 1 = UP
+        this.flipsGenerated = 0;
+        this.currentDifficulty = 1500;
 
         // Constants
         this.railSpeed = 2;
@@ -47,6 +45,10 @@ class Play extends Phaser.Scene{
         this.keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         this.keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // Create Player
+        this.player = new Player(this, 64, this.cursorY, 'spr_player');
+        this.player.setDepth(1);
 
         // Start Track Flip Switch Generation
         this.time.delayedCall(2500, () => { 
@@ -77,7 +79,7 @@ class Play extends Phaser.Scene{
 
             // If so create rail
             this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
-            this.distanceTillNextTrack = 64;
+            this.distanceTillNextTrack = this.railSpeed * 8;
 
         }else{
 
@@ -94,19 +96,60 @@ class Play extends Phaser.Scene{
     // Change tracks direction
     changeTracks(){
 
+        this.flipsGenerated += 1;
+        this.checkDifficulty();
+
         let randomNum =  Phaser.Math.Between(0, 9);
+        let bounds = false;
+
+        // Check if going up or down will go out of bounds
+        if(this.cursorY + 128 >= 480){
+            this.moveCursorUp(2);
+            bounds = true;
+        }
+
+        if(this.cursorY - 128 <= 0){
+            this.moveCursorDown(2);
+            bounds = true;
+        }
 
         // Randomly go up or down
-        if(randomNum >= 5){
-            this.moveCursorDown(2);
-        }else{
-            this.moveCursorUp(2);
+        if(bounds == false){
+            if(randomNum >= 5){
+                this.moveCursorDown(2);
+            }else{
+                this.moveCursorUp(2);
+            }
         }
     
         // Change tracks again in the future    
-        this.time.delayedCall(2500, () => { 
+        this.time.delayedCall(this.currentDifficulty, () => { 
             this.changeTracks(); 
         });
+    }
+
+    checkDifficulty(){
+        switch(this.flipsGenerated){
+            case 3:
+                this.currentDifficulty = 500;
+                this.railSpeed = 4;
+                break;
+
+            case 8:
+                this.currentDifficulty = 400;
+                this.railSpeed = 5;
+                break;
+                
+            case 15:
+                this.currentDifficulty = 300;
+                this.railSpeed = 7;
+                break;
+
+            case 15:
+                this.currentDifficulty = 200;
+                this.railSpeed = 10;
+                break;
+        }
     }
 
     // On collision with a flip rail, check if player matches or derails
@@ -145,7 +188,7 @@ class Play extends Phaser.Scene{
         }
 
         // Restart creation
-        this.distanceTillNextTrack = 64;
+        this.distanceTillNextTrack = this.railSpeed * 8;
     }
 
     // Move tracks down by x times
@@ -162,6 +205,6 @@ class Play extends Phaser.Scene{
         }
 
         // Restart creation
-        this.distanceTillNextTrack = 64;
+        this.distanceTillNextTrack = this.railSpeed * 8;
     }
 }
