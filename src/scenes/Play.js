@@ -179,12 +179,31 @@ class Play extends Phaser.Scene{
 
         // Add flip rail
         this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,0));
+ 
+        let oldCursorY = this.cursorY;
+        let oldCursorX = this.cursorX;
 
         // Add rails up to next track
         while(times > 0){
             this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_rail',0,this.rails,0));
             times -= 1;
             this.cursorY -= 64;
+        }
+
+        // Add fake rails
+        oldCursorY += 64;
+        this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+
+        if(Phaser.Math.Between(0, 9) > 4){
+            oldCursorY += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+        }
+
+        let amountFake = Phaser.Math.Between(0, 3)
+        while(amountFake > 0){
+            oldCursorX += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+            amountFake -= 1;
         }
 
         // Restart creation
@@ -197,6 +216,9 @@ class Play extends Phaser.Scene{
         // Add flip rail
         this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,1));
 
+        let oldCursorY = this.cursorY;
+        let oldCursorX = this.cursorX;
+
         // Add rails up to next track
         while(times > 0){
             this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_rail',0,this.rails,0));
@@ -204,6 +226,23 @@ class Play extends Phaser.Scene{
             this.cursorY += 64;
         }
 
+        // Add fake rails
+        oldCursorY -= 64;
+        this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+       
+
+        if(Phaser.Math.Between(0, 9) > 4){
+            oldCursorY -= 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+        }
+
+        let amountFake = Phaser.Math.Between(0, 3)
+        while(amountFake > 0){
+            oldCursorX += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+            amountFake -= 1;
+        }
+        
         // Restart creation
         this.distanceTillNextTrack = this.railSpeed * 8;
     }
