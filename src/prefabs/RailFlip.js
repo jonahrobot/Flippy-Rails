@@ -13,7 +13,7 @@ class RailFlip extends Phaser.Physics.Arcade.Sprite {
         // Direction 0 = goes up, 1 = goes down
         this.direction = direction;
 
-        if(direction == 1){
+        if(this.parentScene.currentFlip == 1){
             this.setFlipY(true);
         }
 
@@ -25,6 +25,12 @@ class RailFlip extends Phaser.Physics.Arcade.Sprite {
         if(this.x < 0 - 64){
             this.group.killAndHide(this);
             this.destroy();
+        }
+
+        if(this.parentScene.currentFlip == 1){
+            this.setFlipY(true);
+        }else{
+            this.setFlipY(false);
         }
     }
 
