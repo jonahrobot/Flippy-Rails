@@ -40,6 +40,7 @@ class Play extends Phaser.Scene{
 
         this.player = new Player(this, 64, this.cursorY, 'spr_player');
         this.player.setDepth(1);
+       
     }
     update(){
 
@@ -61,10 +62,13 @@ class Play extends Phaser.Scene{
         
         console.log(this.rails.countActive());
         
-        if(Phaser.Geom.Intersects.RectangleToRectangle(this.player, this.rails) == true){
-            console.log("HIT");
-        }
-        
+        this.physics.world.collide(this.player, this.rails, this.collision, null, this);
+
+
+    }
+
+    collision(){
+        console.log("DID IT");
     }
 
     moveCursorUp(times){

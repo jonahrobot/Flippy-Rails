@@ -1,7 +1,14 @@
 // Rail Prefab
-class RailFlip extends Phaser.GameObjects.Sprite{
+class RailFlip extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame, group, direction){
         super(scene, x, y, texture, frame, group);
+
+        this.parentScene = scene;               // maintain scene context
+
+        // set up physics sprite
+        this.parentScene.add.existing(this);    // add to existing scene, displayList, updateList
+        this.parentScene.physics.add.existing(this);    // add to physics system
+        this.setImmovable();     
 
         // Direction 0 = goes up, 1 = goes down
         this.direction = direction;
@@ -11,7 +18,6 @@ class RailFlip extends Phaser.GameObjects.Sprite{
         }
 
         // add object to existing scene
-        scene.add.existing(this);
         this.group = group;
     }
 

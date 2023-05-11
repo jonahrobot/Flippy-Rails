@@ -7,8 +7,11 @@ let config = {
     physics: {
       default: 'arcade',
       arcade: {
-        tileBias: 4,
-        gravity: { y: 250 },
+          //debug: true,
+          gravity: {
+              x: 0,
+              y: 0
+          }
       }
     },
     scene: [ Play ]
