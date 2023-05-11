@@ -1,3 +1,12 @@
+/*
+
+Name: Jonah Ryan
+Game: Flippy Rails!
+Hours spent: 15
+Creative Tilt: 
+
+*/
+
 let config = {
     type: Phaser.AUTO,
     width: 640,

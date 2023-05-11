@@ -10,7 +10,9 @@ class Play extends Phaser.Scene{
 
         // Load rails 
         this.railImage = this.load.image('spr_rail','./assets/rail.png');
+        this.railUpImage = this.load.image('spr_rail_up','./assets/rail_up.png');
         this.load.image('spr_flip_rail','./assets/flip_rail.png');
+        
     }
 
     create(){
@@ -58,14 +60,6 @@ class Play extends Phaser.Scene{
 
     update(){
 
-        if (Phaser.Input.Keyboard.JustDown(this.keyLEFT)) {
-            this.moveCursorDown(2);
-        }
-        
-        if (Phaser.Input.Keyboard.JustDown(this.keyRIGHT)) {
-            this.moveCursorUp(2);
-        }
-
         if (Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
             if(this.currentFlipState == 0){
                 this.currentFlipState = 1;
@@ -79,7 +73,7 @@ class Play extends Phaser.Scene{
 
             // If so create rail
             this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
-            this.distanceTillNextTrack = this.railSpeed * 8;
+            this.distanceTillNextTrack = 64;//this.railSpeed * 8;
 
         }else{
 
@@ -131,21 +125,21 @@ class Play extends Phaser.Scene{
     checkDifficulty(){
         switch(this.flipsGenerated){
             case 3:
-                this.currentDifficulty = 500;
+                this.currentDifficulty = 1000;
                 this.railSpeed = 4;
                 break;
 
-            case 8:
+            case 80:
                 this.currentDifficulty = 400;
                 this.railSpeed = 5;
                 break;
                 
-            case 15:
+            case 150:
                 this.currentDifficulty = 300;
                 this.railSpeed = 7;
                 break;
 
-            case 15:
+            case 150:
                 this.currentDifficulty = 200;
                 this.railSpeed = 10;
                 break;
@@ -184,19 +178,25 @@ class Play extends Phaser.Scene{
         let oldCursorX = this.cursorX;
 
         // Add rails up to next track
-        while(times > 0){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_rail',0,this.rails,0));
+        while(times > 1){
+            this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_rail_up',0,this.rails,0));
             times -= 1;
             this.cursorY -= 64;
         }
 
-        // Add fake rails
-        oldCursorY += 64;
-        this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+        // Add link at top of true path
+        this.rails.add(new Rail(this,this.cursorX,this.cursorY-64,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
+        this.cursorY -= 64;
 
+        // Add fake path
         if(Phaser.Math.Between(0, 9) > 4){
             oldCursorY += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail_up',0,this.rails,0));
+            oldCursorY += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
+        }else{
+            oldCursorY += 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
         }
 
         let amountFake = Phaser.Math.Between(0, 3)
@@ -207,7 +207,7 @@ class Play extends Phaser.Scene{
         }
 
         // Restart creation
-        this.distanceTillNextTrack = this.railSpeed * 8;
+        this.distanceTillNextTrack = 64;
     }
 
     // Move tracks down by x times
@@ -220,20 +220,24 @@ class Play extends Phaser.Scene{
         let oldCursorX = this.cursorX;
 
         // Add rails up to next track
-        while(times > 0){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_rail',0,this.rails,0));
+        while(times > 1){
+            this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_rail_up',0,this.rails,0));
             times -= 1;
             this.cursorY += 64;
         }
 
-        // Add fake rails
-        oldCursorY -= 64;
-        this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
-       
+        this.rails.add(new Rail(this,this.cursorX,this.cursorY+64,'spr_flip_rail',0,this.rails,0).setFlipX(true));
+        this.cursorY += 64;
 
+        // Add fake rails
         if(Phaser.Math.Between(0, 9) > 4){
             oldCursorY -= 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail_up',0,this.rails,0));
+            oldCursorY -= 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
+        }else{
+            oldCursorY -= 64;
+            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
         }
 
         let amountFake = Phaser.Math.Between(0, 3)
@@ -244,6 +248,6 @@ class Play extends Phaser.Scene{
         }
         
         // Restart creation
-        this.distanceTillNextTrack = this.railSpeed * 8;
+        this.distanceTillNextTrack = 64;
     }
 }
