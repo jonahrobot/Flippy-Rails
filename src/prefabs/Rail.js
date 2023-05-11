@@ -9,7 +9,7 @@ class Rail extends Phaser.GameObjects.Sprite{
     }
 
     update(){
-        if(this.x > 640 + 64){
+        if(this.x < 0 - 64){
             this.group.killAndHide(this);
             this.destroy();
         }
