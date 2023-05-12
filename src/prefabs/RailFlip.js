@@ -9,10 +9,11 @@ class RailFlip extends Phaser.Physics.Arcade.Sprite {
         this.parentScene.add.existing(this);    // add to existing scene, displayList, updateList
         this.parentScene.physics.add.existing(this);    // add to physics system
         this.setImmovable();     
+        this.setBodySize(10, 10);
 
         // Direction 0 = goes up, 1 = goes down
         this.direction = direction;
-        
+
         if(this.parentScene.currentFlipState == 1){
             this.setFlipY(true);
         }

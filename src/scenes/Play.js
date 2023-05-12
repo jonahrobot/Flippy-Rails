@@ -152,9 +152,9 @@ class Play extends Phaser.Scene{
 
         // If match move player to new rail direction
         if(this.currentFlipState == rail.direction){
-          
+
             // Move in direction of rail
-            if(rail.direction == 0){ 
+            if(rail.direction == 0){
                 player.y -= 128;
             }else{
                 player.y += 128;
