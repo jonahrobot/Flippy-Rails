@@ -8,22 +8,24 @@ Creative Tilt:
 */
 
 let config = {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     width: 640,
     height: 480,
-    pixelArt: true,
-    autoCenter: true,
+    backgroundColor: '#3ECC4B',
+    roundPixels: false,
+    antialias: true,
+    pixelArt: false,
     physics: {
       default: 'arcade',
       arcade: {
-          debug: true,
+          //debug: true,
           gravity: {
               x: 0,
               y: 0
           }
       }
     },
-    scene: [ Play ]
+    scene: [Loading, Play , Title]
   }
 
 let game = new Phaser.Game(config);

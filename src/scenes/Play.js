@@ -4,19 +4,20 @@ class Play extends Phaser.Scene{
     }
 
     preload(){
-
         // Load player assets 
         this.load.image('spr_player','./assets/player.png');
 
         // Load rails 
-        this.railImage = this.load.image('spr_rail','./assets/rail.png');
-        this.railUpImage = this.load.image('spr_rail_up','./assets/rail_up.png');
+        this.load.image('spr_rail','./assets/rail.png');
+        this.load.image('spr_rail_up','./assets/rail_up.png');
         this.load.image('spr_flip_rail','./assets/flip_rail.png');
         this.load.image('spr_flip_ID','./assets/flip_indicator.png')
-        
+        this.load.image('spr_flip_ID_2','./assets/flip_switcher.png')
     }
 
     create(){
+
+        this.scene.launch('Title');
 
         // Set up Rail Group
         let config = {
@@ -55,7 +56,7 @@ class Play extends Phaser.Scene{
 
         // Start Track Flip Switch Generation
         this.time.delayedCall(2500, () => { 
-            this.changeTracks(); 
+           // this.changeTracks(); 
         });
     }
 
@@ -175,7 +176,8 @@ class Play extends Phaser.Scene{
 
         // Add flip rail
         this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,direction));
-        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails));
+        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails,1).setDepth(1));
+        this.rails.add(new FlipID(this,this.cursorX+64,this.cursorY-16,'spr_flip_ID_2',0,this.rails,0).setDepth(3));
 
         // Save cursor position
         let oldCursorY = this.cursorY;

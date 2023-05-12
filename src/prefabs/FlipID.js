@@ -1,6 +1,6 @@
 // Rail Prefab
 class FlipID extends Phaser.GameObjects.Sprite{
-    constructor(scene, x, y, texture, frame, group){
+    constructor(scene, x, y, texture, frame, group, type){
         super(scene, x, y, texture, frame, group);
 
         this.parentScene = scene;               // maintain scene context
@@ -8,8 +8,9 @@ class FlipID extends Phaser.GameObjects.Sprite{
         // add object to existing scene
         scene.add.existing(this);
         this.group = group;
+        this.type = type;
         
-        if(this.parentScene.currentFlipState == 1){
+        if(this.parentScene.currentFlipState == 1 && this.type == 1){
             this.setFlipY(true);
         }
     }
@@ -21,9 +22,17 @@ class FlipID extends Phaser.GameObjects.Sprite{
         }
 
         if(this.parentScene.currentFlipState == 1){
-            this.setFlipY(true);
+            if(this.type == 0){
+                this.setFlipX(true);
+            }else{
+                this.setFlipY(true);   
+            }
         }else{
-            this.setFlipY(false);
+            if(this.type == 0){
+                this.setFlipX(false);
+            }else{
+                this.setFlipY(false);   
+            }
         }
     }
 
