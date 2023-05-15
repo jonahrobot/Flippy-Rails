@@ -4,6 +4,15 @@ class Play extends Phaser.Scene{
     }
 
     create(){
+        this.scoreConfig = {
+            fontFamily: 'Arial',
+            fontSize: '71px',
+            strokeThickness: 2
+        }
+
+        this.distance = 0;
+        
+        this.font = this.add.text(480,30, '', this.scoreConfig).setOrigin(0,0);
 
         var configSFX = {
             volume: 0.25,
@@ -73,6 +82,7 @@ class Play extends Phaser.Scene{
                 this.game.sound.stopAll();
                 this.scene.sleep('Lose');
                 this.scene.restart('playScene');
+                return;
             }
 
             // If no tutorial, play normally
@@ -134,11 +144,16 @@ class Play extends Phaser.Scene{
             // If so create rail
             this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
             this.distanceTillNextTrack = 64;//this.railSpeed * 8;
+            if(this.scene.isSleeping('Title') == true){
+                this.font.setText( this.distance + 'm');
+                this.distance += 1;
+            }
 
         }else{
 
             // Otherwise move rails down
             this.rails.incX(-1 * this.railSpeed);
+           
             this.distanceTillNextTrack -= this.railSpeed;
 
         }
@@ -208,25 +223,25 @@ class Play extends Phaser.Scene{
 
     checkDifficulty(){
         switch(this.flipsGenerated){
-            case 3:
+            case 6:
                 this.currentDifficulty = 1000;
+                this.railSpeed = 3;
+                break;
+
+            case 12:
+                this.currentDifficulty = 900;
                 this.railSpeed = 4;
                 break;
-
-            case 80:
-                this.currentDifficulty = 400;
+                
+            case 15:
+                this.currentDifficulty = 800;
                 this.railSpeed = 5;
                 break;
-                
-            case 150:
-                this.currentDifficulty = 300;
-                this.railSpeed = 7;
-                break;
 
-            case 150:
+            case 25:
                 this.currentDifficulty = 200;
-                this.railSpeed = 10;
-                break;
+                this.railSpeed = 6;
+                break;         
         }
     }
 
@@ -250,6 +265,7 @@ class Play extends Phaser.Scene{
             player.destroy();
             rail.destroy();
             this.scene.launch('Lose');
+            this.font.visible = false;
             this.lose = true;
 
         }
