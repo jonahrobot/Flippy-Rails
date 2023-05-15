@@ -6,8 +6,11 @@ class Play extends Phaser.Scene{
     create(){
 
         var configSFX = {
+            volume: 0.25,
             loop: true
         }
+
+        this.lose = false;
 
         this.sound.play('sfx_background',configSFX)
 
@@ -64,8 +67,13 @@ class Play extends Phaser.Scene{
     }
 
     update(){
-
         if (Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
+
+            if(this.lose == true){
+                this.game.sound.stopAll();
+                this.scene.sleep('Lose');
+                this.scene.restart('playScene');
+            }
 
             // If no tutorial, play normally
             if(this.tutorial == this.TutorialStates.Done){
@@ -84,7 +92,7 @@ class Play extends Phaser.Scene{
                 this.tutorial = this.TutorialStates.Generated;
 
                 // Remove title
-                this.scene.remove('Title');
+                this.scene.sleep('Title');
 
                 // Create tutorial track change
                 this.time.delayedCall(2500, () => { 
@@ -238,8 +246,11 @@ class Play extends Phaser.Scene{
         }else{
 
             // Not matched, fail state
+            this.sound.play('sfx_explosion');
             player.destroy();
             rail.destroy();
+            this.scene.launch('Lose');
+            this.lose = true;
 
         }
     }
