@@ -5,6 +5,7 @@ class Loading extends Phaser.Scene{
 
     preload(){
         // Load player assets 
+        this.load.atlas('playerAtlas','assets/textureAtlas.png','assets/textureAtlas.json');
         this.load.image('spr_player','./assets/player.png');
 
         // Load rails 
@@ -27,6 +28,18 @@ class Loading extends Phaser.Scene{
 
     create(){
         console.log("LOADING");
+
+        this.anims.create({
+            key: 'playerAnim',
+            frames: this.anims.generateFrameNames('playerAtlas', {
+                prefix: 'Player (',
+                start: 1,
+                end: 2,
+                suffix: ')'
+            }),
+            frameRate: 2,
+            repeat: -1
+        });
     }
 
     update(){

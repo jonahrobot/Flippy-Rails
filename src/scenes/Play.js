@@ -10,9 +10,16 @@ class Play extends Phaser.Scene{
             strokeThickness: 2
         }
 
+        this.creditsConfig = {
+            fontFamily: 'Arial',
+            fontSize: '18px'
+        }
+
         this.distance = 0;
         
         this.font = this.add.text(480,30, '', this.scoreConfig).setOrigin(0,0);
+
+        this.credits = this.add.text(32,400, 'By Jonah Ryan\nMusic under fair use from GameMaster Audio\nSFX created in ChipTone program', this.creditsConfig).setOrigin(0,0);
 
         var configSFX = {
             volume: 0.25,
@@ -67,6 +74,7 @@ class Play extends Phaser.Scene{
 
         // Create Player
         this.player = new Player(this, 64, this.cursorY, 'spr_player');
+        this.player.play('playerAnim',true);
         this.player.setDepth(2);
 
         // Start Track Flip Switch Generation
@@ -103,6 +111,7 @@ class Play extends Phaser.Scene{
 
                 // Remove title
                 this.scene.sleep('Title');
+                this.credits.visible = false;
 
                 // Create tutorial track change
                 this.time.delayedCall(2500, () => { 
@@ -222,24 +231,26 @@ class Play extends Phaser.Scene{
     }
 
     checkDifficulty(){
+
         switch(this.flipsGenerated){
+
             case 6:
-                this.currentDifficulty = 1000;
+                this.currentDifficulty = 1400;
                 this.railSpeed = 3;
                 break;
 
             case 12:
-                this.currentDifficulty = 900;
+                this.currentDifficulty = 1200;
                 this.railSpeed = 4;
                 break;
                 
             case 15:
-                this.currentDifficulty = 800;
+                this.currentDifficulty = 1000;
                 this.railSpeed = 5;
                 break;
 
             case 25:
-                this.currentDifficulty = 200;
+                this.currentDifficulty = 800;
                 this.railSpeed = 6;
                 break;         
         }
