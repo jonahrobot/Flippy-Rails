@@ -3,19 +3,16 @@ class Play extends Phaser.Scene{
         super("playScene");
     }
 
-    preload(){
-        // Load player assets 
-        this.load.image('spr_player','./assets/player.png');
-
-        // Load rails 
-        this.load.image('spr_rail','./assets/rail.png');
-        this.load.image('spr_rail_up','./assets/rail_up.png');
-        this.load.image('spr_flip_rail','./assets/flip_rail.png');
-        this.load.image('spr_flip_ID','./assets/flip_indicator.png')
-        this.load.image('spr_flip_ID_2','./assets/flip_switcher.png')
-    }
-
     create(){
+
+        this.TutorialStates = {
+            AtTitle: 0,
+            Generated: 1,
+            StartedSlow: 2,
+            Done: 3
+        }
+
+        this.tutorial = this.TutorialStates.AtTitle;
 
         this.scene.launch('Title');
 
@@ -63,10 +60,53 @@ class Play extends Phaser.Scene{
     update(){
 
         if (Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
-            if(this.currentFlipState == 0){
-                this.currentFlipState = 1;
-            }else{
-                this.currentFlipState = 0;
+
+            // If no tutorial, play normally
+            if(this.tutorial == this.TutorialStates.Done){
+                if(this.currentFlipState == 0){
+                    this.currentFlipState = 1;
+                }else{
+                    this.currentFlipState = 0;
+                }
+            }
+
+            // Title displayed
+            if(this.tutorial == this.TutorialStates.AtTitle){
+
+                this.tutorial = this.TutorialStates.Generated;
+
+                // Remove title
+                this.scene.remove('Title');
+
+                // Create tutorial track change
+                this.time.delayedCall(2500, () => { 
+                    this.changeTracksTutorial(); 
+                });
+                
+            }
+
+            if(this.tutorial == this.TutorialStates.StartedSlow){
+                if(this.currentFlipState == 0){
+                    this.currentFlipState = 1;
+                }else{
+                    this.currentFlipState = 0;
+                }
+                this.tutorial = this.TutorialStates.Done;
+                this.tween.stop();
+                this.tween = this.tweens.add({
+                    targets: this,
+                    railSpeed: 2,
+                    ease: 'Cubic',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+                    duration: 1500,
+                    repeat: 0,            // -1: infinity
+                    yoyo: false
+                });
+
+                this.time.delayedCall(2500, () => { 
+                    this.changeTracks(); 
+                 });
+
+                this.tutorialImage.destroy();
             }
         }
 
@@ -89,13 +129,23 @@ class Play extends Phaser.Scene{
         this.physics.world.collide(this.player, this.rails, this.collision, null, this);
     }
 
+    changeTracksTutorial(){
+
+        this.flipsGenerated += 1;
+        this.moveCursor(1,2);
+
+        this.time.delayedCall(1500, () => { 
+            this.generateTutorial(); 
+        });
+    }
+
     // Change tracks direction
     changeTracks(){
 
         this.flipsGenerated += 1;
         this.checkDifficulty();
 
-        let randomNum =  Phaser.Math.Between(0, 9);
+        let randomNum = Phaser.Math.Between(0, 9);
         let bounds = false;
 
         // Check if going up or down will go out of bounds
@@ -118,10 +168,24 @@ class Play extends Phaser.Scene{
             }
         }
     
-        // Change tracks again in the future    
         this.time.delayedCall(this.currentDifficulty, () => { 
             this.changeTracks(); 
+        });     
+    }
+
+    generateTutorial(){
+        this.tween = this.tweens.add({
+            targets: this,
+            railSpeed: 0,
+            ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
+            duration: 900,
+            repeat: 0,            // -1: infinity
+            yoyo: false
         });
+        
+        this.tutorialImage = this.add.image(480,100,'spr_tutorial').setOrigin(0,0);
+
+        this.tutorial = this.TutorialStates.StartedSlow
     }
 
     checkDifficulty(){

@@ -12,8 +12,7 @@ let config = {
     width: 640,
     height: 480,
     backgroundColor: '#3ECC4B',
-    roundPixels: false,
-    antialias: true,
+    roundPixels: true,
     pixelArt: false,
     physics: {
       default: 'arcade',
