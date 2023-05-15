@@ -17,6 +17,11 @@ class Loading extends Phaser.Scene{
         // Load Logo
         this.load.image('spr_logo','./assets/logo.png')
         this.load.image('spr_tutorial','./assets/tutorial.png')
+
+        this.load.audio('sfx_background','./assets/sfx/background.wav');
+        this.load.audio('sfx_on','./assets/sfx/toggleon.wav');
+        this.load.audio('sfx_off','./assets/sfx/toggleoff.wav');
+        this.load.audio('sfx_explosion','./assets/sfx/explosion.wav');
     }
 
     create(){

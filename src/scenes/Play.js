@@ -5,6 +5,12 @@ class Play extends Phaser.Scene{
 
     create(){
 
+        var configSFX = {
+            loop: true
+        }
+
+        this.sound.play('sfx_background',configSFX)
+
         this.TutorialStates = {
             AtTitle: 0,
             Generated: 1,
@@ -64,8 +70,10 @@ class Play extends Phaser.Scene{
             // If no tutorial, play normally
             if(this.tutorial == this.TutorialStates.Done){
                 if(this.currentFlipState == 0){
+                    this.sound.play('sfx_on');
                     this.currentFlipState = 1;
                 }else{
+                    this.sound.play('sfx_off');
                     this.currentFlipState = 0;
                 }
             }
@@ -87,8 +95,10 @@ class Play extends Phaser.Scene{
 
             if(this.tutorial == this.TutorialStates.StartedSlow){
                 if(this.currentFlipState == 0){
+                    this.sound.play('sfx_on');
                     this.currentFlipState = 1;
                 }else{
+                    this.sound.play('sfx_off');
                     this.currentFlipState = 0;
                 }
                 this.tutorial = this.TutorialStates.Done;
