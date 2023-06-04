@@ -4,340 +4,36 @@ class Play extends Phaser.Scene{
     }
 
     create(){
-        this.scoreConfig = {
-            fontFamily: 'Arial',
-            fontSize: '71px',
-            strokeThickness: 2
-        }
+        let w = game.config.width;
+        let h = game.config.height;
 
-        this.creditsConfig = {
-            fontFamily: 'Arial',
-            fontSize: '18px'
-        }
+        // Create Background
+        this.add.image(0,0,'spr_background_1').setOrigin(0).setDepth(-1);
+        this.add.image(299/2,h,'box').setOrigin(0.5,0.9).setDepth(1);
 
-        this.distance = 0;
-        
-        this.font = this.add.text(480,30, '', this.scoreConfig).setOrigin(0,0);
+        // Create Photos
+        this.picture_1 = new Picture(this,299/2,h-40,'photo_1');
+        this.picture_2 = new Picture(this,100,h/4,'photo_2');
 
-        this.credits = this.add.text(32,400, 'By Jonah Ryan\nMusic under fair use from GameMaster Audio\nSFX created in ChipTone program', this.creditsConfig).setOrigin(0,0);
-
-        var configSFX = {
-            volume: 0.25,
-            loop: true
-        }
-
-        this.lose = false;
-
-        this.sound.play('sfx_background',configSFX)
-
-        this.TutorialStates = {
-            AtTitle: 0,
-            Generated: 1,
-            StartedSlow: 2,
-            Done: 3
-        }
-
-        this.tutorial = this.TutorialStates.AtTitle;
-
-        this.scene.launch('Title');
-
-        // Set up Rail Group
-        let config = {
-            classType: Phaser.GameObjects.Sprite,
-            defaultKey: null,
-            defaultFrame: null,
-            active: true,
-            maxSize: -1,
-            runChildUpdate: true,
-            createCallback: null,
-            removeCallback: null,
-            createMultipleCallback: null
-        }; this.rails = this.add.group(config);
-        
-        // State Trackers
-        this.currentFlipState = 0;      // 0 = DOWN, 1 = UP
-        this.flipsGenerated = 0;
-        this.currentDifficulty = 1500;
-
-        // Constants
-        this.railSpeed = 2;
-
-        // Track Creation Trackers
-        this.cursorX = 640 + 64;
-        this.cursorY = 240;
-        this.distanceTillNextTrack = 0; 
-
-        // Set up Inputs
-        this.keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        this.keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        this.keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        // Create Player
-        this.player = new Player(this, 64, this.cursorY, 'spr_player');
-        this.player.play('playerAnim',true);
-        this.player.setDepth(2);
-
-        // Start Track Flip Switch Generation
-        this.time.delayedCall(2500, () => { 
-           // this.changeTracks(); 
+        // Set up Input
+        this.input.on('gameobjectdown', (pointer, gameObject) =>
+        {
+            gameObject.setHeldDown(true);
         });
+
+        this.input.on('gameobjectup', (pointer, gameObject) =>
+        {
+            gameObject.setHeldDown(false);
+        });
+
+        // Create Target
+        this.target_1 = new Target(this,w*0.75,h/2,'photo_spot').setDepth(-1);
     }
 
     update(){
-        if (Phaser.Input.Keyboard.JustDown(this.keySPACE)) {
-
-            if(this.lose == true){
-                this.game.sound.stopAll();
-                this.scene.sleep('Lose');
-                this.scene.restart('playScene');
-                return;
-            }
-
-            // If no tutorial, play normally
-            if(this.tutorial == this.TutorialStates.Done){
-                if(this.currentFlipState == 0){
-                    this.sound.play('sfx_on');
-                    this.currentFlipState = 1;
-                }else{
-                    this.sound.play('sfx_off');
-                    this.currentFlipState = 0;
-                }
-            }
-
-            // Title displayed
-            if(this.tutorial == this.TutorialStates.AtTitle){
-
-                this.tutorial = this.TutorialStates.Generated;
-
-                // Remove title
-                this.scene.sleep('Title');
-                this.credits.visible = false;
-
-                // Create tutorial track change
-                this.time.delayedCall(2500, () => { 
-                    this.changeTracksTutorial(); 
-                });
-                
-            }
-
-            if(this.tutorial == this.TutorialStates.StartedSlow){
-                if(this.currentFlipState == 0){
-                    this.sound.play('sfx_on');
-                    this.currentFlipState = 1;
-                }else{
-                    this.sound.play('sfx_off');
-                    this.currentFlipState = 0;
-                }
-                this.tutorial = this.TutorialStates.Done;
-                this.tween.stop();
-                this.tween = this.tweens.add({
-                    targets: this,
-                    railSpeed: 2,
-                    ease: 'Cubic',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-                    duration: 1500,
-                    repeat: 0,            // -1: infinity
-                    yoyo: false
-                });
-
-                this.time.delayedCall(2500, () => { 
-                    this.changeTracks(); 
-                 });
-
-                this.tutorialImage.destroy();
-            }
-        }
-
-        // Check if we need to create a new track
-        if(this.distanceTillNextTrack <= 0){
-
-            // If so create rail
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY,'spr_rail',0,this.rails,0));
-            this.distanceTillNextTrack = 64;//this.railSpeed * 8;
-            if(this.scene.isSleeping('Title') == true){
-                this.font.setText( this.distance + 'm');
-                this.distance += 1;
-            }
-
-        }else{
-
-            // Otherwise move rails down
-            this.rails.incX(-1 * this.railSpeed);
-           
-            this.distanceTillNextTrack -= this.railSpeed;
-
-        }
         
-        // Finally, Check for collisions
-        this.physics.world.collide(this.player, this.rails, this.collision, null, this);
-    }
-
-    changeTracksTutorial(){
-
-        this.flipsGenerated += 1;
-        this.moveCursor(1,2);
-
-        this.time.delayedCall(1500, () => { 
-            this.generateTutorial(); 
-        });
-    }
-
-    // Change tracks direction
-    changeTracks(){
-
-        this.flipsGenerated += 1;
-        this.checkDifficulty();
-
-        let randomNum = Phaser.Math.Between(0, 9);
-        let bounds = false;
-
-        // Check if going up or down will go out of bounds
-        if(this.cursorY + 128 >= 480){
-            this.moveCursor(0,2);
-            bounds = true;
-        }
-
-        if(this.cursorY - 128 <= 0){
-            this.moveCursor(1,2);
-            bounds = true;
-        }
-
-        // Randomly go up or down
-        if(bounds == false){
-            if(randomNum >= 5){
-                this.moveCursor(1,2);
-            }else{
-                this.moveCursor(0,2);
-            }
-        }
-    
-        this.time.delayedCall(this.currentDifficulty, () => { 
-            this.changeTracks(); 
-        });     
-    }
-
-    generateTutorial(){
-        this.tween = this.tweens.add({
-            targets: this,
-            railSpeed: 0,
-            ease: 'Linear',       // 'Cubic', 'Elastic', 'Bounce', 'Back'
-            duration: 900,
-            repeat: 0,            // -1: infinity
-            yoyo: false
-        });
-        
-        this.tutorialImage = this.add.image(480,100,'spr_tutorial').setOrigin(0,0);
-
-        this.tutorial = this.TutorialStates.StartedSlow
-    }
-
-    checkDifficulty(){
-
-        switch(this.flipsGenerated){
-
-            case 6:
-                this.currentDifficulty = 1400;
-                this.railSpeed = 3;
-                break;
-
-            case 12:
-                this.currentDifficulty = 1200;
-                this.railSpeed = 4;
-                break;
-                
-            case 15:
-                this.currentDifficulty = 1000;
-                this.railSpeed = 5;
-                break;
-
-            case 25:
-                this.currentDifficulty = 800;
-                this.railSpeed = 6;
-                break;         
-        }
-    }
-
-    // On collision with a flip rail, check if player matches or derails
-    collision(player,rail){
-
-        // If match move player to new rail direction
-        if(this.currentFlipState == rail.direction){
-
-            // Move in direction of rail
-            if(rail.direction == 0){
-                player.y -= 128;
-            }else{
-                player.y += 128;
-            }
-
-        }else{
-
-            // Not matched, fail state
-            this.sound.play('sfx_explosion');
-            player.destroy();
-            rail.destroy();
-            this.scene.launch('Lose');
-            this.font.visible = false;
-            this.lose = true;
-
-        }
-    }
-
-    // Direction: 0 for up, 1 for down
-    // Times: how far to move in said direction
-    moveCursor(direction, times){
-
-        // Add flip rail
-        this.rails.add(new RailFlip(this,this.cursorX,this.cursorY,'spr_flip_rail',0,this.rails,direction));
-        this.rails.add(new FlipID(this,this.cursorX,this.cursorY,'spr_flip_ID',0,this.rails,1).setDepth(1));
-        this.rails.add(new FlipID(this,this.cursorX+64,this.cursorY-16,'spr_flip_ID_2',0,this.rails,0).setDepth(3));
-
-        // Save cursor position
-        let oldCursorY = this.cursorY;
-        let oldCursorX = this.cursorX;
-
-        let constant = (direction ? 1 : -1);
-
-        // Add rails up to next track
-        while(times > 1){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_rail_up',0,this.rails,0));
-            times -= 1;
-            this.cursorY += (64*constant);
-        }
-
-        // Add link at top of true path
-        if(constant == -1){
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
-        }else{
-            this.rails.add(new Rail(this,this.cursorX,this.cursorY+(64*constant),'spr_flip_rail',0,this.rails,0).setFlipX(true));
-        }
-        this.cursorY += (64*constant);
-
-        /// Add fake path ----
-
-        // Possibly go up one more
-        if(Phaser.Math.Between(0, 9) > 4 && (oldCursorY + 128 < 480) && (oldCursorY - 128 > 0)){
-            oldCursorY += (-64*constant);
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail_up',0,this.rails,0));
-        }
-
-        oldCursorY += (-64*constant);
-        
-        if(constant == 1){
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true).setFlipY(true));
-        }else{
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_flip_rail',0,this.rails,0).setFlipX(true));
-        }
-        
-
-        let amountFake = Phaser.Math.Between(0, 3)
-        while(amountFake > 0){
-            oldCursorX += 64;
-            this.rails.add(new Rail(this,oldCursorX,oldCursorY,'spr_rail',0,this.rails,0));
-            amountFake -= 1;
-        }
-
-        // Restart creation
-         this.distanceTillNextTrack = 64;
-
+        // Update all Pictures
+        this.picture_1.update();
+        this.picture_2.update();
     }
 }
